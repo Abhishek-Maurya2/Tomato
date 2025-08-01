@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 
 sealed class Screen: NavKey {
     @Serializable
+    object Stopwatch : Screen()
+    @Serializable
     object Timer : Screen()
     @Serializable
     object Settings : Screen()

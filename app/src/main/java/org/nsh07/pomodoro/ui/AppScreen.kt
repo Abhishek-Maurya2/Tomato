@@ -47,6 +47,8 @@ import org.nsh07.pomodoro.MainActivity.Companion.screens
 import org.nsh07.pomodoro.ui.settingsScreen.SettingsScreenRoot
 import org.nsh07.pomodoro.ui.statsScreen.StatsScreenRoot
 import org.nsh07.pomodoro.ui.statsScreen.viewModel.StatsViewModel
+import org.nsh07.pomodoro.ui.stopwatchScreen.StopwatchScreen
+import org.nsh07.pomodoro.ui.stopwatchScreen.viewModel.StopwatchViewModel
 import org.nsh07.pomodoro.ui.timerScreen.TimerScreen
 import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerViewModel
 
@@ -55,10 +57,12 @@ import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerViewModel
 fun AppScreen(
     modifier: Modifier = Modifier,
     timerViewModel: TimerViewModel = viewModel(factory = TimerViewModel.Factory),
-    statsViewModel: StatsViewModel = viewModel(factory = StatsViewModel.Factory)
+    statsViewModel: StatsViewModel = viewModel(factory = StatsViewModel.Factory),
+    stopwatchViewModel: StopwatchViewModel = viewModel(factory = StopwatchViewModel.Factory)
 ) {
     val uiState by timerViewModel.timerState.collectAsStateWithLifecycle()
     val remainingTime by timerViewModel.time.collectAsStateWithLifecycle()
+    val stopwatchState by stopwatchViewModel.stopwatchState.collectAsStateWithLifecycle()
 
     val progress by rememberUpdatedState((uiState.totalTime.toFloat() - remainingTime) / uiState.totalTime)
 
@@ -71,7 +75,7 @@ fun AppScreen(
         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 
-    val backStack = rememberNavBackStack<Screen>(Screen.Timer)
+    val backStack = rememberNavBackStack<Screen>(Screen.Stopwatch)
 
     Scaffold(
         bottomBar = {
@@ -89,7 +93,7 @@ fun AppScreen(
                     val selected = backStack.last() == it.route
                     ShortNavigationBarItem(
                         selected = selected,
-                        onClick = if (it.route != Screen.Timer) { // Ensure the backstack does not accumulate screens
+                        onClick = if (it.route != Screen.Stopwatch) { // Ensure the backstack does not accumulate screens
                             {
                                 if (backStack.size < 2) backStack.add(it.route)
                                 else backStack[1] = it.route
@@ -135,6 +139,18 @@ fun AppScreen(
                 )
             },
             entryProvider = entryProvider {
+                entry<Screen.Stopwatch> {
+                    StopwatchScreen(
+                        stopwatchState = stopwatchState,
+                        onAction = stopwatchViewModel::onAction,
+                        modifier = modifier.padding(
+                            start = contentPadding.calculateStartPadding(layoutDirection),
+                            end = contentPadding.calculateEndPadding(layoutDirection),
+                            bottom = contentPadding.calculateBottomPadding()
+                        )
+                    )
+                }
+
                 entry<Screen.Timer> {
                     TimerScreen(
                         timerState = uiState,

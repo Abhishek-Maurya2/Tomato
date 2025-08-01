@@ -37,3 +37,25 @@ fun millisecondsToHoursMinutes(t: Long): String {
         TimeUnit.MILLISECONDS.toMinutes(t) % TimeUnit.HOURS.toMinutes(1)
     )
 }
+
+fun millisecondsToStopwatchStr(t: Long): String {
+    require(t >= 0L)
+    val hours = TimeUnit.MILLISECONDS.toHours(t)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(t) % TimeUnit.HOURS.toMinutes(1)
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(t) % TimeUnit.MINUTES.toSeconds(1)
+    val centiseconds = (t % 1000) / 10
+    
+    return if (hours > 0) {
+        String.format(
+            Locale.getDefault(),
+            "%02d:%02d:%02d",
+            hours, minutes, seconds
+        )
+    } else {
+        String.format(
+            Locale.getDefault(),
+            "%02d:%02d.%02d",
+            minutes, seconds, centiseconds
+        )
+    }
+}

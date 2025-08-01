@@ -9,6 +9,7 @@ import org.nsh07.pomodoro.ui.AppScreen
 import org.nsh07.pomodoro.ui.NavItem
 import org.nsh07.pomodoro.ui.Screen
 import org.nsh07.pomodoro.ui.statsScreen.viewModel.StatsViewModel
+import org.nsh07.pomodoro.ui.stopwatchScreen.viewModel.StopwatchViewModel
 import org.nsh07.pomodoro.ui.theme.TomatoTheme
 import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerViewModel
 
@@ -16,19 +17,30 @@ class MainActivity : ComponentActivity() {
 
     private val timerViewModel: TimerViewModel by viewModels(factoryProducer = { TimerViewModel.Factory })
     private val statsViewModel: StatsViewModel by viewModels(factoryProducer = { StatsViewModel.Factory })
+    private val stopwatchViewModel: StopwatchViewModel by viewModels(factoryProducer = { StopwatchViewModel.Factory })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TomatoTheme {
-                AppScreen(timerViewModel = timerViewModel, statsViewModel = statsViewModel)
+                AppScreen(
+                    stopwatchViewModel = stopwatchViewModel,
+                    timerViewModel = timerViewModel, 
+                    statsViewModel = statsViewModel
+                )
             }
         }
     }
 
     companion object {
         val screens = listOf(
+            NavItem(
+                Screen.Stopwatch,
+                R.drawable.clocks,
+                R.drawable.clocks,
+                "Stopwatch"
+            ),
             NavItem(
                 Screen.Timer,
                 R.drawable.hourglass,
