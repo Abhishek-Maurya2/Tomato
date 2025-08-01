@@ -11,7 +11,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -85,12 +84,17 @@ fun StopwatchScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .height(350.dp)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
                     if (stopwatchState.isRunning) {
                         // Animated LoadingIndicator when running
                         LoadingIndicator(
                             modifier = Modifier
-                                .widthIn(max = 350.dp)
+                                .widthIn(max = 400.dp)
                                 .fillMaxWidth(1.0f)
                                 .aspectRatio(1f),
                             color = colorScheme.primary,
@@ -106,14 +110,13 @@ fun StopwatchScreen(
                             color = colorScheme.secondaryContainer,
                             tonalElevation = 2.dp
                         ) {}
-                        Spacer(modifier = Modifier.height(96.dp))
                     }
                     
                     Text(
                         text = stopwatchState.timeStr,
                         style = TextStyle(
                             fontFamily = openRundeClock,
-                            fontSize = 56.sp,
+                            fontSize = 70.sp,
                             lineHeight = 56.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (stopwatchState.isRunning) colorScheme.onPrimary else colorScheme.onSecondaryContainer
