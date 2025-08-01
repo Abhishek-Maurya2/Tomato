@@ -9,6 +9,6 @@ package org.nsh07.pomodoro.ui.stopwatchScreen.viewModel
 
 data class StopwatchState(
     val elapsedTime: Long = 0L,
-    val timeStr: String = "00:00.00",
+    val timeStr: String = "00:00",
     val isRunning: Boolean = false
 )

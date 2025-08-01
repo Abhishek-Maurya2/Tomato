@@ -20,8 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -29,8 +29,11 @@ import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -85,17 +88,27 @@ fun StopwatchScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        progress = { 1f },
-                        modifier = Modifier
-                            .widthIn(max = 350.dp)
-                            .fillMaxWidth(0.9f)
-                            .aspectRatio(1f),
-                        color = colorScheme.secondaryContainer,
-                        trackColor = colorScheme.surface,
-                        strokeWidth = 16.dp,
-                        gapSize = 0.dp
-                    )
+                    if (stopwatchState.isRunning) {
+                        // Animated LoadingIndicator when running
+                        LoadingIndicator(
+                            modifier = Modifier
+                                .widthIn(max = 350.dp)
+                                .fillMaxWidth(1.0f)
+                                .aspectRatio(1f),
+                            color = colorScheme.primary,
+                        )
+                    } else {
+                        // Static Surface when stopped/paused
+                        Surface(
+                            modifier = Modifier
+                                .widthIn(max = 350.dp)
+                                .fillMaxWidth(0.9f)
+                                .aspectRatio(1f),
+                            shape = CircleShape,
+                            color = colorScheme.secondaryContainer,
+                            tonalElevation = 2.dp
+                        ) {}
+                    }
                     
                     Text(
                         text = stopwatchState.timeStr,
@@ -103,8 +116,8 @@ fun StopwatchScreen(
                             fontFamily = openRundeClock,
                             fontSize = 56.sp,
                             lineHeight = 56.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = colorScheme.onSurface
+                            fontWeight = FontWeight.Bold,
+                            color = if (stopwatchState.isRunning) colorScheme.onPrimary else colorScheme.onSecondaryContainer
                         ),
                         textAlign = TextAlign.Center,
                         maxLines = 1
@@ -238,8 +251,8 @@ private fun StopwatchScreenPreview() {
     TomatoTheme {
         StopwatchScreen(
             stopwatchState = StopwatchState(
-                elapsedTime = 75650L,
-                timeStr = "01:15.65",
+                elapsedTime = 75000L,
+                timeStr = "01:15",
                 isRunning = true
             ),
             onAction = {}

@@ -74,7 +74,7 @@ class StopwatchViewModel : ViewModel() {
                     )
                 }
                 
-                delay(10)
+                delay(1000)
             }
         }
     }
@@ -97,7 +97,7 @@ class StopwatchViewModel : ViewModel() {
         _stopwatchState.update { 
             StopwatchState(
                 elapsedTime = 0L,
-                timeStr = "00:00.00",
+                timeStr = "00:00",
                 isRunning = false
             )
         }
