@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.nsh07.pomodoro.TomatoApplication
+import org.nsh07.pomodoro.ZingApplication
 import org.nsh07.pomodoro.data.PreferenceRepository
 import org.nsh07.pomodoro.data.Stat
 import org.nsh07.pomodoro.data.StatRepository
@@ -235,7 +235,7 @@ class TimerViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY] as TomatoApplication)
+                val application = (this[APPLICATION_KEY] as ZingApplication)
                 val appPreferenceRepository = application.container.appPreferenceRepository
                 val appStatRepository = application.container.appStatRepository
                 val appTimerRepository = application.container.appTimerRepository

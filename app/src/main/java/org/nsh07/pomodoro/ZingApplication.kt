@@ -4,7 +4,7 @@ import android.app.Application
 import org.nsh07.pomodoro.data.AppContainer
 import org.nsh07.pomodoro.data.DefaultAppContainer
 
-class TomatoApplication : Application() {
+class ZingApplication : Application() {
     lateinit var container: AppContainer
     override fun onCreate() {
         super.onCreate()

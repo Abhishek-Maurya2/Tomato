@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.sp
 import org.nsh07.pomodoro.R
 import org.nsh07.pomodoro.ui.theme.AppFonts.openRundeClock
 import org.nsh07.pomodoro.ui.theme.AppFonts.robotoFlexTopBar
-import org.nsh07.pomodoro.ui.theme.TomatoTheme
+import org.nsh07.pomodoro.ui.theme.ZingTheme
 import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerAction
 import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerMode
 import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerState
@@ -110,7 +110,7 @@ fun TimerScreen(
                     when (it) {
                         TimerMode.BRAND ->
                             Text(
-                                "Tomato",
+                                "Zing",
                                 style = TextStyle(
                                     fontFamily = robotoFlexTopBar,
                                     fontSize = 32.sp,
@@ -413,7 +413,7 @@ fun TimerScreenPreview() {
     val timerState = TimerState(
         timeStr = "03:34", nextTimeStr = "5:00", timerMode = TimerMode.FOCUS, timerRunning = true
     )
-    TomatoTheme {
+    ZingTheme {
         TimerScreen(
             timerState,
             { 0.3f },

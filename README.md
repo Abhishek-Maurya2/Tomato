@@ -6,7 +6,7 @@
 
 <div align="center">
 
-Tomato is a minimalist Pomodoro timer for Android based on Material 3 Expressive.
+Zing is a minimalist Pomodoro timer for Android based on Material 3 Expressive.
 
 <p>
   <a href="https://apt.izzysoft.de/fdroid/index/apk/org.nsh07.pomodoro">
@@ -41,14 +41,14 @@ Tomato is a minimalist Pomodoro timer for Android based on Material 3 Expressive
 
 ## Download
 
-- **F-Droid** (recommended): Tomato is not yet available on the official F-Droid repository.
+- **F-Droid** (recommended): Zing is not yet available on the official F-Droid repository.
   Instead, you can currently install it through
   the [IzzyOnDroid repository](https://apt.izzysoft.de/fdroid/).
 - **Obtainium** (recommended): You can add this GitHub repository
   on [Obtainium](https://obtainium.imranr.dev/) to get updates directly from GitHub releases. This
-  is the fastest way to install and update Tomato.
+  is the fastest way to install and update Zing.
 - **GitHub releases**: Alternatively, you can manually download and install APKs from
-  the [Releases](https://github.com/nsh07/Tomato/releases/latest) section of this repo (This
+  the [Releases](https://github.com/nsh07/Zing/releases/latest) section of this repo (This
   method is not recommended, use Obtainium instead).
 
 > [!TIP]
@@ -63,7 +63,7 @@ Tomato is a minimalist Pomodoro timer for Android based on Material 3 Expressive
 
 ## Donate
 
-You can support Tomato's development
+You can support Zing's development
 through [my GitHub Sponsors page](https://github.com/sponsors/nsh07)
 or [my BuyMeACoffee page](https://coff.ee/nsh07):
 

@@ -60,7 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.nsh07.pomodoro.R
 import org.nsh07.pomodoro.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.pomodoro.ui.theme.AppFonts.robotoFlexTopBar
-import org.nsh07.pomodoro.ui.theme.TomatoTheme
+import org.nsh07.pomodoro.ui.theme.ZingTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -266,7 +266,7 @@ private fun SettingsScreen(
 )
 @Composable
 fun SettingsScreenPreview() {
-    TomatoTheme {
+    ZingTheme {
         SettingsScreen(
             focusTimeInputFieldState = rememberTextFieldState((25 * 60 * 1000).toString()),
             shortBreakTimeInputFieldState = rememberTextFieldState((5 * 60 * 1000).toString()),

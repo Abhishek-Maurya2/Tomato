@@ -31,8 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MaterialTheme.shapes
-import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -51,7 +49,7 @@ import androidx.compose.ui.unit.sp
 import org.nsh07.pomodoro.R
 import org.nsh07.pomodoro.ui.theme.AppFonts.openRundeClock
 import org.nsh07.pomodoro.ui.theme.AppFonts.robotoFlexTopBar
-import org.nsh07.pomodoro.ui.theme.TomatoTheme
+import org.nsh07.pomodoro.ui.theme.ZingTheme
 import org.nsh07.pomodoro.ui.stopwatchScreen.viewModel.StopwatchAction
 import org.nsh07.pomodoro.ui.stopwatchScreen.viewModel.StopwatchState
 
@@ -101,13 +99,15 @@ fun StopwatchScreen(
                         // Static Surface when stopped/paused
                         Surface(
                             modifier = Modifier
-                                .widthIn(max = 350.dp)
+                                .widthIn(max = 300.dp)
                                 .fillMaxWidth(0.9f)
                                 .aspectRatio(1f),
                             shape = CircleShape,
                             color = colorScheme.secondaryContainer,
                             tonalElevation = 2.dp
                         ) {}
+                        Spacer(modifier = Modifier.height(96.dp)) 
+
                     }
                     
                     Text(
@@ -124,10 +124,9 @@ fun StopwatchScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(88.dp))
 
                 val interactionSources = remember { List(2) { MutableInteractionSource() } }
-                ButtonGroup(
+               ButtonGroup(
                     overflowIndicator = { state ->
                         FilledTonalIconButton(
                             onClick = {
@@ -164,7 +163,9 @@ fun StopwatchScreen(
                                 ),
                                 shapes = IconButtonDefaults.toggleableShapes(),
                                 interactionSource = interactionSources[0],
-                                modifier = Modifier.size(width = 128.dp, height = 96.dp)
+                                modifier = Modifier
+                                    .size(width = 128.dp, height = 96.dp)
+                                    .animateWidth(interactionSources[0])
                             ) {
                                 if (stopwatchState.isRunning) {
                                     Icon(
@@ -192,7 +193,7 @@ fun StopwatchScreen(
                                     } else {
                                         Icon(
                                             painterResource(R.drawable.play),
-                                            contentDescription = "Start"
+                                            contentDescription = "Play"
                                         )
                                     }
                                 },
@@ -214,11 +215,13 @@ fun StopwatchScreen(
                                 ),
                                 shapes = IconButtonDefaults.shapes(),
                                 interactionSource = interactionSources[1],
-                                modifier = Modifier.size(width = 128.dp, height = 96.dp)
+                                modifier = Modifier
+                                    .size(96.dp)
+                                    .animateWidth(interactionSources[1])
                             ) {
                                 Icon(
                                     painterResource(R.drawable.restart_large),
-                                    contentDescription = "Reset",
+                                    contentDescription = "Restart",
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -228,10 +231,10 @@ fun StopwatchScreen(
                                 leadingIcon = {
                                     Icon(
                                         painterResource(R.drawable.restart),
-                                        "Reset"
+                                        "Restart"
                                     )
                                 },
-                                text = { Text("Reset") },
+                                text = { Text("Restart") },
                                 onClick = {
                                     onAction(StopwatchAction.ResetStopwatch)
                                     state.dismiss()
@@ -248,7 +251,7 @@ fun StopwatchScreen(
 @Preview(device = Devices.PHONE)
 @Composable
 private fun StopwatchScreenPreview() {
-    TomatoTheme {
+    ZingTheme {
         StopwatchScreen(
             stopwatchState = StopwatchState(
                 elapsedTime = 75000L,

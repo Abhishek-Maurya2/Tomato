@@ -19,7 +19,7 @@ import com.patrykandpatrick.vico.core.common.data.ExtraStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import org.nsh07.pomodoro.TomatoApplication
+import org.nsh07.pomodoro.ZingApplication
 import org.nsh07.pomodoro.data.StatRepository
 import java.time.format.TextStyle
 import java.util.Locale
@@ -110,7 +110,7 @@ class StatsViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY] as TomatoApplication)
+                val application = (this[APPLICATION_KEY] as ZingApplication)
                 val appStatRepository = application.container.appStatRepository
 
                 StatsViewModel(appStatRepository)

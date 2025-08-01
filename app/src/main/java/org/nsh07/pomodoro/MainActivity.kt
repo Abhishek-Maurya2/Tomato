@@ -10,7 +10,7 @@ import org.nsh07.pomodoro.ui.NavItem
 import org.nsh07.pomodoro.ui.Screen
 import org.nsh07.pomodoro.ui.statsScreen.viewModel.StatsViewModel
 import org.nsh07.pomodoro.ui.stopwatchScreen.viewModel.StopwatchViewModel
-import org.nsh07.pomodoro.ui.theme.TomatoTheme
+import org.nsh07.pomodoro.ui.theme.ZingTheme
 import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerViewModel
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TomatoTheme {
+            ZingTheme {
                 AppScreen(
                     stopwatchViewModel = stopwatchViewModel,
                     timerViewModel = timerViewModel, 

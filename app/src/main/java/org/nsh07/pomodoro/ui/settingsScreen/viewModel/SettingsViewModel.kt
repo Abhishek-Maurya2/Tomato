@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
-import org.nsh07.pomodoro.TomatoApplication
+import org.nsh07.pomodoro.ZingApplication
 import org.nsh07.pomodoro.data.AppPreferenceRepository
 import org.nsh07.pomodoro.data.TimerRepository
 
@@ -95,7 +95,7 @@ class SettingsViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY] as TomatoApplication)
+                val application = (this[APPLICATION_KEY] as ZingApplication)
                 val appPreferenceRepository = application.container.appPreferenceRepository
                 val appTimerRepository = application.container.appTimerRepository
 
