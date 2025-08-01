@@ -106,8 +106,7 @@ fun StopwatchScreen(
                             color = colorScheme.secondaryContainer,
                             tonalElevation = 2.dp
                         ) {}
-                        Spacer(modifier = Modifier.height(96.dp)) 
-
+                        Spacer(modifier = Modifier.height(96.dp))
                     }
                     
                     Text(
