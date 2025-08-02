@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +29,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalTextStyle
@@ -87,11 +90,18 @@ fun SettingsScreenRoot(
         viewModel.sessionsSliderState
     }
 
+    // collect theme state from ViewModel
+    val isSystemTheme = viewModel.isSystemTheme
+    val isDarkTheme = viewModel.isDarkTheme
     SettingsScreen(
         focusTimeInputFieldState = focusTimeInputFieldState,
         shortBreakTimeInputFieldState = shortBreakTimeInputFieldState,
         longBreakTimeInputFieldState = longBreakTimeInputFieldState,
         sessionsSliderState = sessionsSliderState,
+        isSystemTheme = isSystemTheme,
+        isDarkTheme = isDarkTheme,
+        onSystemThemeChange = { viewModel.updateSystemTheme(it) },
+        onDarkThemeChange = { viewModel.updateDarkTheme(it) },
         modifier = modifier
     )
 }
@@ -103,6 +113,10 @@ private fun SettingsScreen(
     shortBreakTimeInputFieldState: TextFieldState,
     longBreakTimeInputFieldState: TextFieldState,
     sessionsSliderState: SliderState,
+    isSystemTheme: Boolean,
+    isDarkTheme: Boolean,
+    onSystemThemeChange: (Boolean) -> Unit,
+    onDarkThemeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -255,6 +269,72 @@ private fun SettingsScreen(
                     }
                 }
             }
+            item {
+                Text(
+                    "Theme",
+                    style = typography.titleMediumEmphasized,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+            // Theme switches
+            item {
+                ListItem(
+                    leadingContent = { Icon(
+                            painterResource(R.drawable.contrast),
+                            null
+                        ) },
+                    headlineContent = { Text("Follow system theme") },
+                    trailingContent = {
+                        Switch(
+                            checked = isSystemTheme,
+                            onCheckedChange = onSystemThemeChange,
+                            colors = SwitchDefaults.colors(),
+                            thumbContent = {
+                                if (
+                                    isSystemTheme
+                                ) {
+                                    Icon(
+                                        painterResource(R.drawable.baseline_check),
+                                        null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                                    )
+                                }
+                            }
+                        )
+                    },
+                    modifier = Modifier.clip(shapes.large)
+                )
+            }
+            //dark theme
+            item {
+                ListItem(
+                    leadingContent = { Icon(
+                        painterResource(R.drawable.dark_mode),
+                        null
+                    ) },
+                    headlineContent = { Text("Dark theme") },
+                    trailingContent = {
+                        Switch(
+                            checked = isDarkTheme,
+                            onCheckedChange = onDarkThemeChange,
+                            enabled = !isSystemTheme,
+                            colors = SwitchDefaults.colors(),
+                            thumbContent = {
+                                if (
+                                    isDarkTheme
+                                ) {
+                                    Icon(
+                                        painterResource(R.drawable.baseline_check),
+                                        null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                    )
+                                }
+                            }
+                        )
+                    },
+                    modifier = Modifier.clip(shapes.large)
+                )
+            }
         }
     }
 }
@@ -272,6 +352,10 @@ fun SettingsScreenPreview() {
             shortBreakTimeInputFieldState = rememberTextFieldState((5 * 60 * 1000).toString()),
             longBreakTimeInputFieldState = rememberTextFieldState((15 * 60 * 1000).toString()),
             sessionsSliderState = rememberSliderState(value = 3f, steps = 3, valueRange = 1f..5f),
+            isSystemTheme = true,
+            isDarkTheme = false,
+            onSystemThemeChange = {},
+            onDarkThemeChange = {},
             modifier = Modifier.fillMaxSize()
         )
     }

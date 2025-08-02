@@ -10,6 +10,9 @@ package org.nsh07.pomodoro.ui.settingsScreen.viewModel
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SliderState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -43,6 +46,11 @@ class SettingsViewModel(
         valueRange = 1f..6f,
         onValueChangeFinished = ::updateSessionLength
     )
+    // theme mode: 0=system, 1=light, 2=dark
+    var isSystemTheme by mutableStateOf(true)
+        private set
+    var isDarkTheme by mutableStateOf(false)
+        private set
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -82,12 +90,42 @@ class SettingsViewModel(
                 }
         }
     }
+    // load saved theme mode
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val mode = preferenceRepository.getIntPreference("theme_mode") ?: 0
+            isSystemTheme = (mode == 0)
+            isDarkTheme = (mode == 2)
+        }
+    }
 
     private fun updateSessionLength() {
         viewModelScope.launch {
             timerRepository.sessionLength = preferenceRepository.saveIntPreference(
                 "session_length",
                 sessionsSliderState.value.toInt()
+            )
+        }
+    }
+    /** Toggle following system theme */
+    fun updateSystemTheme(follow: Boolean) {
+        isSystemTheme = follow
+        if (follow) isDarkTheme = false
+        viewModelScope.launch(Dispatchers.IO) {
+            preferenceRepository.saveIntPreference(
+                "theme_mode",
+                if (follow) 0 else if (isDarkTheme) 2 else 1
+            )
+        }
+    }
+    /** Toggle dark theme (disables system follow) */
+    fun updateDarkTheme(dark: Boolean) {
+        isDarkTheme = dark
+        isSystemTheme = false
+        viewModelScope.launch(Dispatchers.IO) {
+            preferenceRepository.saveIntPreference(
+                "theme_mode",
+                if (dark) 2 else 1
             )
         }
     }
