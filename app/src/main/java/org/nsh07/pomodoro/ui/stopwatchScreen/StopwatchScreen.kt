@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Nishant Mishra
+ * Copyright (c) 2025 Abhishek Kumar Maurya
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
@@ -257,7 +257,7 @@ private fun StopwatchScreenPreview() {
         StopwatchScreen(
             stopwatchState = StopwatchState(
                 elapsedTime = 75000L,
-                timeStr = "01:15",
+                timeStr = "7:51:15",
                 isRunning = true
             ),
             onAction = {}
