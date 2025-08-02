@@ -112,18 +112,51 @@ fun StopwatchScreen(
                         ) {}
                     }
                     
-                    Text(
-                        text = stopwatchState.timeStr,
-                        style = TextStyle(
-                            fontFamily = openRundeClock,
-                            fontSize = 70.sp,
-                            lineHeight = 56.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (stopwatchState.isRunning) colorScheme.onPrimary else colorScheme.onSecondaryContainer
-                        ),
-                        textAlign = TextAlign.Center,
-                        maxLines = 1
-                    )
+                    if (stopwatchState.isOverAnHour) {
+                        // Two-line display for times over an hour
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = stopwatchState.hoursMinutesStr,
+                                style = TextStyle(
+                                    fontFamily = openRundeClock,
+                                    fontSize = 70.sp,
+                                    lineHeight = 76.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (stopwatchState.isRunning) colorScheme.onPrimary else colorScheme.onSecondaryContainer
+                                ),
+                                textAlign = TextAlign.Center,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = stopwatchState.secondsStr,
+                                style = TextStyle(
+                                    fontFamily = openRundeClock,
+                                    fontSize = 50.sp,
+                                    lineHeight = 54.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (stopwatchState.isRunning) colorScheme.onPrimary else colorScheme.onSecondaryContainer
+                                ),
+                                textAlign = TextAlign.Center,
+                                maxLines = 1
+                            )
+                        }
+                    } else {
+                        // Single-line display for times under an hour
+                        Text(
+                            text = stopwatchState.timeStr,
+                            style = TextStyle(
+                                fontFamily = openRundeClock,
+                                fontSize = 70.sp,
+                                lineHeight = 76.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (stopwatchState.isRunning) colorScheme.onPrimary else colorScheme.onSecondaryContainer
+                            ),
+                            textAlign = TextAlign.Center,
+                            maxLines = 2
+                        )
+                    }
                 }
 
 
@@ -256,8 +289,29 @@ private fun StopwatchScreenPreview() {
     ZingTheme {
         StopwatchScreen(
             stopwatchState = StopwatchState(
-                elapsedTime = 75000L,
-                timeStr = "7:51:15",
+                elapsedTime = 3675000L, // 1 hour, 1 minute, 15 seconds
+                timeStr = "01:01:15",
+                hoursMinutesStr = "01:01",
+                secondsStr = "15",
+                isOverAnHour = true,
+                isRunning = true
+            ),
+            onAction = {}
+        )
+    }
+}
+
+@Preview(device = Devices.PHONE)
+@Composable
+private fun StopwatchScreenUnderHourPreview() {
+    ZingTheme {
+        StopwatchScreen(
+            stopwatchState = StopwatchState(
+                elapsedTime = 75000L, // 1 minute, 15 seconds
+                timeStr = "01:15",
+                hoursMinutesStr = "",
+                secondsStr = "",
+                isOverAnHour = false,
                 isRunning = true
             ),
             onAction = {}

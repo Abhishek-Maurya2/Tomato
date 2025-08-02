@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import org.nsh07.pomodoro.ZingApplication
 import org.nsh07.pomodoro.data.StatRepository
 import org.nsh07.pomodoro.utils.millisecondsToStopwatchStr
+import org.nsh07.pomodoro.utils.millisecondsToStopwatchFormat
 
 class StopwatchViewModel(
     private val statRepository: StatRepository
@@ -81,10 +82,15 @@ class StopwatchViewModel(
                 
                 _elapsedTime.update { cappedElapsed }
                 
+                val timeFormat = millisecondsToStopwatchFormat(cappedElapsed)
+                
                 _stopwatchState.update { currentState ->
                     currentState.copy(
                         elapsedTime = cappedElapsed,
-                        timeStr = millisecondsToStopwatchStr(cappedElapsed)
+                        timeStr = millisecondsToStopwatchStr(cappedElapsed),
+                        hoursMinutesStr = timeFormat.hoursMinutesStr,
+                        secondsStr = timeFormat.secondsStr,
+                        isOverAnHour = timeFormat.isOverAnHour
                     )
                 }
                 
@@ -142,6 +148,9 @@ class StopwatchViewModel(
             StopwatchState(
                 elapsedTime = 0L,
                 timeStr = "00:00",
+                hoursMinutesStr = "",
+                secondsStr = "",
+                isOverAnHour = false,
                 isRunning = false
             )
         }

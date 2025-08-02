@@ -58,3 +58,30 @@ fun millisecondsToStopwatchStr(t: Long): String {
         )
     }
 }
+
+data class StopwatchTimeFormat(
+    val hoursMinutesStr: String,
+    val secondsStr: String,
+    val isOverAnHour: Boolean
+)
+
+fun millisecondsToStopwatchFormat(t: Long): StopwatchTimeFormat {
+    require(t >= 0L)
+    val hours = TimeUnit.MILLISECONDS.toHours(t)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(t) % TimeUnit.HOURS.toMinutes(1)
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(t) % TimeUnit.MINUTES.toSeconds(1)
+    
+    return if (hours > 0) {
+        StopwatchTimeFormat(
+            hoursMinutesStr = String.format(Locale.getDefault(), "%02d:%02d", hours, minutes),
+            secondsStr = String.format(Locale.getDefault(), "%02d", seconds),
+            isOverAnHour = true
+        )
+    } else {
+        StopwatchTimeFormat(
+            hoursMinutesStr = "",
+            secondsStr = "",
+            isOverAnHour = false
+        )
+    }
+}
