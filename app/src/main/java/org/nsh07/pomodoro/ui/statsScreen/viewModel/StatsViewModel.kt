@@ -111,7 +111,7 @@ class StatsViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as ZingApplication)
-                val appStatRepository = application.container.appStatRepository
+                val appStatRepository = application.container.statRepository
 
                 StatsViewModel(appStatRepository)
             }

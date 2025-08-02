@@ -25,12 +25,12 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import org.nsh07.pomodoro.ZingApplication
-import org.nsh07.pomodoro.data.AppPreferenceRepository
+import org.nsh07.pomodoro.data.PreferenceRepository
 import org.nsh07.pomodoro.data.TimerRepository
 
 @OptIn(FlowPreview::class, ExperimentalMaterial3Api::class)
 class SettingsViewModel(
-    private val preferenceRepository: AppPreferenceRepository,
+    private val preferenceRepository: PreferenceRepository,
     private val timerRepository: TimerRepository
 ) : ViewModel() {
     val focusTimeTextFieldState =
@@ -130,18 +130,4 @@ class SettingsViewModel(
         }
     }
 
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as ZingApplication)
-                val appPreferenceRepository = application.container.appPreferenceRepository
-                val appTimerRepository = application.container.appTimerRepository
-
-                SettingsViewModel(
-                    preferenceRepository = appPreferenceRepository,
-                    timerRepository = appTimerRepository
-                )
-            }
-        }
-    }
 }

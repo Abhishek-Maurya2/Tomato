@@ -232,20 +232,4 @@ class TimerViewModel(
         }
     }
 
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as ZingApplication)
-                val appPreferenceRepository = application.container.appPreferenceRepository
-                val appStatRepository = application.container.appStatRepository
-                val appTimerRepository = application.container.appTimerRepository
-
-                TimerViewModel(
-                    preferenceRepository = appPreferenceRepository,
-                    statRepository = appStatRepository,
-                    timerRepository = appTimerRepository
-                )
-            }
-        }
-    }
 }

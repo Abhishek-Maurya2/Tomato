@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.nsh07.pomodoro.R
+import org.nsh07.pomodoro.ui.AppViewModelProvider
 import org.nsh07.pomodoro.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.pomodoro.ui.theme.AppFonts.robotoFlexTopBar
 import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.bottomListItemShape
@@ -73,7 +74,7 @@ import org.nsh07.pomodoro.ui.theme.ZingTheme
 @Composable
 fun SettingsScreenRoot(
     modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
+    viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val focusTimeInputFieldState = rememberSaveable(saver = TextFieldState.Saver) {
         viewModel.focusTimeTextFieldState

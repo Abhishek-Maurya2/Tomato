@@ -14,14 +14,15 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [IntPreference::class, Stat::class],
-    version = 1
+    entities = [IntPreference::class, Stat::class, Task::class],
+    version = 2
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun preferenceDao(): PreferenceDao
     abstract fun statDao(): StatDao
+    abstract fun taskDao(): TaskDao
 
     companion object {
 
@@ -31,6 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "app_database")
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }
             }

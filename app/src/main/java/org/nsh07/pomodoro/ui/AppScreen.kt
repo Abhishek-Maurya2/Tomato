@@ -44,11 +44,13 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.window.core.layout.WindowSizeClass
 import org.nsh07.pomodoro.MainActivity.Companion.screens
+import org.nsh07.pomodoro.ui.AppViewModelProvider
 import org.nsh07.pomodoro.ui.settingsScreen.SettingsScreenRoot
 import org.nsh07.pomodoro.ui.statsScreen.StatsScreenRoot
 import org.nsh07.pomodoro.ui.statsScreen.viewModel.StatsViewModel
 import org.nsh07.pomodoro.ui.stopwatchScreen.StopwatchScreen
 import org.nsh07.pomodoro.ui.stopwatchScreen.viewModel.StopwatchViewModel
+import org.nsh07.pomodoro.ui.tasksScreen.TasksScreen
 import org.nsh07.pomodoro.ui.timerScreen.TimerScreen
 import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerViewModel
 
@@ -56,9 +58,9 @@ import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerViewModel
 @Composable
 fun AppScreen(
     modifier: Modifier = Modifier,
-    timerViewModel: TimerViewModel = viewModel(factory = TimerViewModel.Factory),
-    statsViewModel: StatsViewModel = viewModel(factory = StatsViewModel.Factory),
-    stopwatchViewModel: StopwatchViewModel = viewModel(factory = StopwatchViewModel.Factory)
+    timerViewModel: TimerViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    statsViewModel: StatsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    stopwatchViewModel: StopwatchViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by timerViewModel.timerState.collectAsStateWithLifecycle()
     val remainingTime by timerViewModel.time.collectAsStateWithLifecycle()
@@ -177,6 +179,16 @@ fun AppScreen(
                 entry<Screen.Stats> {
                     StatsScreenRoot(
                         viewModel = statsViewModel,
+                        modifier = modifier.padding(
+                            start = contentPadding.calculateStartPadding(layoutDirection),
+                            end = contentPadding.calculateEndPadding(layoutDirection),
+                            bottom = contentPadding.calculateBottomPadding()
+                        )
+                    )
+                }
+
+                entry<Screen.Tasks> {
+                    TasksScreen(
                         modifier = modifier.padding(
                             start = contentPadding.calculateStartPadding(layoutDirection),
                             end = contentPadding.calculateEndPadding(layoutDirection),

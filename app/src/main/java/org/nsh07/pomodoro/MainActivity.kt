@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.nsh07.pomodoro.ui.AppScreen
+import org.nsh07.pomodoro.ui.AppViewModelProvider
 import org.nsh07.pomodoro.ui.NavItem
 import org.nsh07.pomodoro.ui.Screen
 import org.nsh07.pomodoro.ui.settingsScreen.viewModel.SettingsViewModel
@@ -21,10 +22,10 @@ import org.nsh07.pomodoro.ui.timerScreen.viewModel.TimerViewModel
 
 class MainActivity : ComponentActivity() {
 
-    private val timerViewModel: TimerViewModel by viewModels(factoryProducer = { TimerViewModel.Factory })
-    private val statsViewModel: StatsViewModel by viewModels(factoryProducer = { StatsViewModel.Factory })
-    private val stopwatchViewModel: StopwatchViewModel by viewModels(factoryProducer = { StopwatchViewModel.Factory })
-    private val settingsViewModel: SettingsViewModel by viewModels(factoryProducer = { SettingsViewModel.Factory })
+    private val timerViewModel: TimerViewModel by viewModels { AppViewModelProvider.Factory }
+    private val statsViewModel: StatsViewModel by viewModels { AppViewModelProvider.Factory }
+    private val stopwatchViewModel: StopwatchViewModel by viewModels { AppViewModelProvider.Factory }
+    private val settingsViewModel: SettingsViewModel by viewModels { AppViewModelProvider.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +50,12 @@ class MainActivity : ComponentActivity() {
     companion object {
         val screens = listOf(
             NavItem(
+                Screen.Tasks,
+                R.drawable.baseline_check,
+                R.drawable.baseline_check,
+                "Tasks"
+            ),
+            NavItem(
                 Screen.Stopwatch,
                 R.drawable.clocks,
                 R.drawable.clocks,
@@ -71,7 +78,7 @@ class MainActivity : ComponentActivity() {
                 R.drawable.settings,
                 R.drawable.settings_filled,
                 "Settings"
-            )
+            ),
         )
     }
 }

@@ -10,21 +10,26 @@ package org.nsh07.pomodoro.data
 import android.content.Context
 
 interface AppContainer {
-    val appPreferenceRepository: AppPreferenceRepository
-    val appStatRepository: AppStatRepository
-    val appTimerRepository: AppTimerRepository
+    val preferenceRepository: PreferenceRepository
+    val statRepository: StatRepository
+    val timerRepository: TimerRepository
+    val taskRepository: TaskRepository
 }
 
-class DefaultAppContainer(context: Context) : AppContainer {
-
-    override val appPreferenceRepository: AppPreferenceRepository by lazy {
+class AppDataContainer(private val context: Context) : AppContainer {
+    override val preferenceRepository: PreferenceRepository by lazy {
         AppPreferenceRepository(AppDatabase.getDatabase(context).preferenceDao())
     }
 
-    override val appStatRepository: AppStatRepository by lazy {
+    override val statRepository: StatRepository by lazy {
         AppStatRepository(AppDatabase.getDatabase(context).statDao())
     }
 
-    override val appTimerRepository: AppTimerRepository by lazy { AppTimerRepository() }
+    override val timerRepository: TimerRepository by lazy {
+        AppTimerRepository()
+    }
 
+    override val taskRepository: TaskRepository by lazy {
+        TaskRepository(AppDatabase.getDatabase(context).taskDao())
+    }
 }
