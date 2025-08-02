@@ -63,6 +63,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.nsh07.pomodoro.R
 import org.nsh07.pomodoro.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.pomodoro.ui.theme.AppFonts.robotoFlexTopBar
+import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.bottomListItemShape
+import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.cardShape
+import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.middleListItemShape
+import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.pomodoro.ui.theme.ZingTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -302,7 +306,7 @@ private fun SettingsScreen(
                             }
                         )
                     },
-                    modifier = Modifier.clip(shapes.large)
+                    modifier = Modifier.clip(topListItemShape)
                 )
             }
             //dark theme
@@ -326,13 +330,13 @@ private fun SettingsScreen(
                                     Icon(
                                         painterResource(R.drawable.baseline_check),
                                         null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        modifier = Modifier.size(SwitchDefaults.IconSize)
                                     )
                                 }
                             }
                         )
                     },
-                    modifier = Modifier.clip(shapes.large)
+                    modifier = Modifier.clip(bottomListItemShape)
                 )
             }
         }
