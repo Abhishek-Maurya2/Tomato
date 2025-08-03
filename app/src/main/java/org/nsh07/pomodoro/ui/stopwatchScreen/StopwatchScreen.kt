@@ -246,7 +246,7 @@ fun StopwatchScreen(
                             FilledTonalIconButton(
                                 onClick = { onAction(StopwatchAction.ResetStopwatch) },
                                 colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                    containerColor = colorScheme.secondaryContainer
+                                    containerColor = colorScheme.tertiaryContainer
                                 ),
                                 shapes = IconButtonDefaults.shapes(),
                                 interactionSource = interactionSources[1],

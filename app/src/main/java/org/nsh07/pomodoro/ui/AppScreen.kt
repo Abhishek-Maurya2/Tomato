@@ -12,18 +12,20 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconToggleButton
+import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.motionScheme
-import androidx.compose.material3.NavigationItemIconPosition
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ShortNavigationBar
-import androidx.compose.material3.ShortNavigationBarArrangement
-import androidx.compose.material3.ShortNavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
@@ -31,11 +33,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.entry
@@ -44,7 +48,6 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.window.core.layout.WindowSizeClass
 import org.nsh07.pomodoro.MainActivity.Companion.screens
-import org.nsh07.pomodoro.ui.AppViewModelProvider
 import org.nsh07.pomodoro.ui.settingsScreen.SettingsScreenRoot
 import org.nsh07.pomodoro.ui.statsScreen.StatsScreenRoot
 import org.nsh07.pomodoro.ui.statsScreen.viewModel.StatsViewModel
@@ -86,36 +89,52 @@ fun AppScreen(
                     WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND
                 )
             }
-            ShortNavigationBar(
-                arrangement =
-                    if (wide) ShortNavigationBarArrangement.Centered
-                    else ShortNavigationBarArrangement.EqualWeight
-            ) {
-                screens.forEach {
-                    val selected = backStack.last() == it.route
-                    ShortNavigationBarItem(
-                        selected = selected,
-                        onClick = if (it.route != Screen.Stopwatch) { // Ensure the backstack does not accumulate screens
-                            {
-                                if (backStack.size < 2) backStack.add(it.route)
-                                else backStack[1] = it.route
+            HorizontalFloatingToolbar(
+                expanded = true, // Always expanded for navigation
+                modifier = Modifier
+                    .padding(16.dp),
+                content = {
+                    screens.forEach { item ->
+                        val selected = backStack.last() == item.route
+                        FilledIconToggleButton(
+                            checked = selected,
+                            onCheckedChange = { _ ->
+                                if (item.route != Screen.Stopwatch) {
+                                    if (backStack.size < 2) backStack.add(item.route)
+                                    else backStack[1] = item.route
+                                } else {
+                                    if (backStack.size > 1) backStack.removeAt(1)
+                                }
+                            },
+                            modifier = Modifier.weight(0.9f),
+                            colors = IconButtonDefaults.filledIconToggleButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Crossfade(targetState = selected, label = "icon_selection_fade") { isSelected ->
+                                    Icon(
+                                        painter = painterResource(id = if (isSelected) item.selectedIcon else item.unselectedIcon),
+                                        contentDescription = item.label,
+                                    )
+                                }
+                                if (wide) {
+                                    Text(
+                                        text = item.label,
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                }
                             }
-                        } else {
-                            { if (backStack.size > 1) backStack.removeAt(1) }
-                        },
-                        icon = {
-                            Crossfade(selected) { selected ->
-                                if (selected) Icon(painterResource(it.selectedIcon), null)
-                                else Icon(painterResource(it.unselectedIcon), null)
-                            }
-                        },
-                        iconPosition =
-                            if (wide) NavigationItemIconPosition.Start
-                            else NavigationItemIconPosition.Top,
-                        label = { Text(it.label) }
-                    )
+                        }
+                    }
                 }
-            }
+            )
         }
     ) { contentPadding ->
         NavDisplay(
