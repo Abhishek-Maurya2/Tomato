@@ -150,7 +150,8 @@ private fun SettingsScreen(
                 .background(colorScheme.surfaceContainer)
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
-        ) {
+        )
+        {
             item {
                 Spacer(Modifier.height(12.dp))
             }

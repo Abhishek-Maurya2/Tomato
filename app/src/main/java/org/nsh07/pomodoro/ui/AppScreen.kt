@@ -12,14 +12,20 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconToggleButton
+import androidx.compose.material3.FloatingToolbarColors
+import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -28,6 +34,7 @@ import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -83,59 +90,6 @@ fun AppScreen(
     val backStack = rememberNavBackStack<Screen>(Screen.Stopwatch)
 
     Scaffold(
-        bottomBar = {
-            val wide = remember {
-                windowSizeClass.isWidthAtLeastBreakpoint(
-                    WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND
-                )
-            }
-            HorizontalFloatingToolbar(
-                expanded = true, // Always expanded for navigation
-                modifier = Modifier
-                    .padding(16.dp),
-                content = {
-                    screens.forEach { item ->
-                        val selected = backStack.last() == item.route
-                        FilledIconToggleButton(
-                            checked = selected,
-                            onCheckedChange = { _ ->
-                                if (item.route != Screen.Stopwatch) {
-                                    if (backStack.size < 2) backStack.add(item.route)
-                                    else backStack[1] = item.route
-                                } else {
-                                    if (backStack.size > 1) backStack.removeAt(1)
-                                }
-                            },
-                            modifier = Modifier.weight(0.9f),
-                            colors = IconButtonDefaults.filledIconToggleButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                            )
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Crossfade(targetState = selected, label = "icon_selection_fade") { isSelected ->
-                                    Icon(
-                                        painter = painterResource(id = if (isSelected) item.selectedIcon else item.unselectedIcon),
-                                        contentDescription = item.label,
-                                    )
-                                }
-                                if (wide) {
-                                    Text(
-                                        text = item.label,
-                                        style = MaterialTheme.typography.labelSmall,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            )
-        }
     ) { contentPadding ->
         NavDisplay(
             backStack = backStack,
@@ -217,5 +171,66 @@ fun AppScreen(
                 }
             }
         )
+        // Floating Action Toolbar for navigation
+        Box(
+            modifier = Modifier
+                .fillMaxSize() // Fill the available space
+                .padding(contentPadding) // Respect Scaffold's padding
+                .padding(16.dp), // Additional padding for the toolbar itself
+            contentAlignment = Alignment.BottomCenter // Position at the bottom center
+        ) {
+            HorizontalFloatingToolbar(
+                expanded = true,
+                colors = FloatingToolbarColors(
+                    toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    toolbarContentColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    fabContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    fabContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                ),
+                content = {
+                    screens.forEach { item ->
+                        val selected = backStack.last() == item.route
+                        FilledIconToggleButton(
+                            checked = selected,
+                            onCheckedChange = { _ ->
+                                if (item.route != Screen.Stopwatch) {
+                                    if (backStack.size < 2) backStack.add(item.route)
+                                    else backStack[1] = item.route
+                                } else {
+                                    if (backStack.size > 1) backStack.removeAt(1)
+                                }
+                            },
+                            colors = IconButtonDefaults.filledIconToggleButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                            ),
+                            modifier =
+                                Modifier.size(
+                                    IconButtonDefaults.mediumContainerSize(
+                                        IconButtonDefaults.IconButtonWidthOption.Uniform
+                                    )
+                                ),
+                            shape = IconButtonDefaults.mediumRoundShape,
+                        )
+                        {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Crossfade(targetState = selected, label = "icon_selection_fade") { isSelected ->
+                                    Icon(
+                                        painter = painterResource(id = if (isSelected) item.selectedIcon else item.unselectedIcon),
+                                        contentDescription = item.label,
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+                }
+            )
+        }
     }
 }
