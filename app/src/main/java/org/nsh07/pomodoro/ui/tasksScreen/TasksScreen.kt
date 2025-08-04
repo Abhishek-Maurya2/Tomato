@@ -125,7 +125,7 @@ private fun TasksScreenContent(
             item {
                 Spacer(Modifier.height(12.dp))
             }
-            
+
             // Add task section
             item {
                 Text(
@@ -134,7 +134,7 @@ private fun TasksScreenContent(
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
-            
+
             item {
                 Row(
                     modifier = Modifier
@@ -163,7 +163,7 @@ private fun TasksScreenContent(
                     }
                 }
             }
-            
+
             if (tasks.isNotEmpty()) {
                 item {
                     Spacer(Modifier.height(8.dp))
@@ -173,7 +173,7 @@ private fun TasksScreenContent(
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
-                
+
                 itemsIndexed(tasks) { index, task ->
                     TaskItem(
                         task = task,
@@ -200,7 +200,7 @@ private fun TasksScreenContent(
                     )
                 }
             }
-            
+
             item {
                 Spacer(Modifier.height(16.dp))
             }
