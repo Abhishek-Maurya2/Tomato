@@ -9,6 +9,7 @@ package org.nsh07.pomodoro.ui.tasksScreen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -55,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Devices
@@ -134,6 +138,7 @@ private fun TasksScreenContent(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+    var completedTasksVisible by remember { mutableStateOf(false) }
 
     if (isEditing) {
         showBottomSheet = true
@@ -198,7 +203,7 @@ private fun TasksScreenContent(
                         )
                     }
 
-                    itemsIndexed(incompleteTasks) { index, task ->
+                    itemsIndexed(incompleteTasks.reversed()) { index, task ->
                         TaskItem(
                             task = task,
                             onUpdate = onUpdateTask,
@@ -217,26 +222,38 @@ private fun TasksScreenContent(
                 if (completedTasks.isNotEmpty()) {
                     item {
                         Spacer(Modifier.height(24.dp))
-                        Text(
-                            "Completed",
-                            style = typography.titleMediumEmphasized,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { completedTasksVisible = !completedTasksVisible }
+                        ) {
+                            Text(
+                                "Completed",
+                                style = typography.titleMediumEmphasized,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = if (completedTasksVisible) "Collapse" else "Expand",
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
                     }
 
-                    itemsIndexed(completedTasks) { index, task ->
-                        TaskItem(
-                            task = task,
-                            onUpdate = onUpdateTask,
-                            onDelete = onDeleteTask,
-                            onEdit = { onStartEditing(task) },
-                            shape = when {
-                                completedTasks.size == 1 -> shapes.large
-                                index == 0 -> topListItemShape
-                                index == completedTasks.lastIndex -> bottomListItemShape
-                                else -> middleListItemShape
-                            }
-                        )
+                    if (completedTasksVisible) {
+                        itemsIndexed(completedTasks.reversed()) { index, task ->
+                            TaskItem(
+                                task = task,
+                                onUpdate = onUpdateTask,
+                                onDelete = onDeleteTask,
+                                onEdit = { onStartEditing(task) },
+                                shape = when {
+                                    completedTasks.size == 1 -> shapes.large
+                                    index == 0 -> topListItemShape
+                                    index == completedTasks.lastIndex -> bottomListItemShape
+                                    else -> middleListItemShape
+                                }
+                            )
+                        }
                     }
                 }
 
