@@ -7,6 +7,11 @@
 
 package org.nsh07.pomodoro.ui.stopwatchScreen.viewModel
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -23,11 +28,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.nsh07.pomodoro.ZingApplication
 import org.nsh07.pomodoro.data.StatRepository
+import org.nsh07.pomodoro.service.StopwatchService
 import org.nsh07.pomodoro.utils.millisecondsToStopwatchStr
 import org.nsh07.pomodoro.utils.millisecondsToStopwatchFormat
 
 class StopwatchViewModel(
-    private val statRepository: StatRepository
+    private val statRepository: StatRepository,
+    private val context: Context
 ) : ViewModel() {
     
     private val _stopwatchState = MutableStateFlow(StopwatchState())
@@ -40,12 +47,74 @@ class StopwatchViewModel(
     private var startTime = 0L
     private var pauseTime = 0L
     private var pauseDuration = 0L
+    
+    // Service connection
+    private var stopwatchService: StopwatchService? = null
+    private var isServiceBound = false
+    
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as StopwatchService.StopwatchBinder
+            stopwatchService = binder.getService()
+            isServiceBound = true
+            
+            // Sync with service state
+            syncWithService()
+        }
+        
+        override fun onServiceDisconnected(name: ComponentName?) {
+            stopwatchService = null
+            isServiceBound = false
+        }
+    }
+    
+    init {
+        bindToService()
+    }
 
     fun onAction(action: StopwatchAction) {
         when (action) {
             StopwatchAction.ToggleStopwatch -> toggleStopwatch()
             StopwatchAction.ResetStopwatch -> resetStopwatch()
             StopwatchAction.SaveAndResetStopwatch -> saveAndResetStopwatch()
+        }
+    }
+
+    private fun bindToService() {
+        val intent = Intent(context, StopwatchService::class.java)
+        context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+    
+    private fun syncWithService() {
+        stopwatchService?.let { service ->
+            viewModelScope.launch {
+                service.elapsedTime.collect { elapsedTime ->
+                    _elapsedTime.value = elapsedTime
+                    updateStopwatchState(elapsedTime)
+                }
+            }
+            
+            viewModelScope.launch {
+                service.isRunning.collect { isRunning ->
+                    _stopwatchState.update { currentState ->
+                        currentState.copy(isRunning = isRunning)
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun updateStopwatchState(elapsedTime: Long) {
+        val timeFormat = millisecondsToStopwatchFormat(elapsedTime)
+        
+        _stopwatchState.update { currentState ->
+            currentState.copy(
+                elapsedTime = elapsedTime,
+                timeStr = millisecondsToStopwatchStr(elapsedTime),
+                hoursMinutesStr = timeFormat.hoursMinutesStr,
+                secondsStr = timeFormat.secondsStr,
+                isOverAnHour = timeFormat.isOverAnHour
+            )
         }
     }
 
@@ -58,91 +127,44 @@ class StopwatchViewModel(
     }
 
     private fun startStopwatch() {
-        _stopwatchState.update { currentState ->
-            currentState.copy(isRunning = true)
+        stopwatchService?.startStopwatch()
+        
+        // Start service if not already running
+        val intent = Intent(context, StopwatchService::class.java).apply {
+            action = StopwatchService.ACTION_START
         }
-
-        if (startTime == 0L) {
-            startTime = SystemClock.elapsedRealtime()
-            pauseDuration = 0L
-        } else {
-            pauseDuration += SystemClock.elapsedRealtime() - pauseTime
-        }
-
-        stopwatchJob = viewModelScope.launch {
-            while (_stopwatchState.value.isRunning) {
-                val currentElapsed = SystemClock.elapsedRealtime() - startTime - pauseDuration
-                
-                // Prevent negative time due to clock adjustments or other edge cases
-                val safeElapsed = maxOf(0L, currentElapsed)
-                
-                // Prevent extremely large values that might cause overflow issues
-                // Cap at 24 hours (86400000 ms) which is reasonable for a stopwatch session
-                val cappedElapsed = minOf(safeElapsed, 86400000L)
-                
-                _elapsedTime.update { cappedElapsed }
-                
-                val timeFormat = millisecondsToStopwatchFormat(cappedElapsed)
-                
-                _stopwatchState.update { currentState ->
-                    currentState.copy(
-                        elapsedTime = cappedElapsed,
-                        timeStr = millisecondsToStopwatchStr(cappedElapsed),
-                        hoursMinutesStr = timeFormat.hoursMinutesStr,
-                        secondsStr = timeFormat.secondsStr,
-                        isOverAnHour = timeFormat.isOverAnHour
-                    )
-                }
-                
-                delay(1000)
-            }
-        }
+        context.startForegroundService(intent)
     }
 
     private fun pauseStopwatch() {
-        _stopwatchState.update { currentState ->
-            currentState.copy(isRunning = false)
-        }
-        
-        // Only update pause time if stopwatch was actually running
-        if (startTime > 0L) {
-            pauseTime = SystemClock.elapsedRealtime()
-        }
-        
-        stopwatchJob?.cancel()
+        stopwatchService?.pauseStopwatch()
     }
 
     private fun resetStopwatch() {
-        val currentElapsedTime = _stopwatchState.value.elapsedTime
+        val currentElapsedTime = stopwatchService?.getCurrentElapsedTime() ?: _stopwatchState.value.elapsedTime
         
-        stopwatchJob?.cancel()
+        stopwatchService?.resetStopwatch()
         resetStopwatchState()
         
         // Only save to stats if there was meaningful time recorded (at least 1 second)
-        // This prevents accidental taps from polluting the stats
         if (currentElapsedTime >= 1000L) {
             saveTimeToStats(currentElapsedTime)
         }
     }
     
     private fun saveAndResetStopwatch() {
-        val currentElapsedTime = _stopwatchState.value.elapsedTime
+        val currentElapsedTime = stopwatchService?.getCurrentElapsedTime() ?: _stopwatchState.value.elapsedTime
         
-        stopwatchJob?.cancel()
+        stopwatchService?.resetStopwatch()
         resetStopwatchState()
         
         // Always save time for explicit save action, even if less than 1 second
-        // User explicitly requested to save, so respect their intent
         if (currentElapsedTime > 0L) {
             saveTimeToStats(currentElapsedTime)
         }
     }
     
     private fun resetStopwatchState() {
-        startTime = 0L
-        pauseTime = 0L
-        pauseDuration = 0L
-        
         _elapsedTime.update { 0L }
         _stopwatchState.update { 
             StopwatchState(
@@ -183,17 +205,12 @@ class StopwatchViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        // Handle case where ViewModel is cleared while stopwatch is running or paused
-        // This can happen when the app is destroyed or the user navigates away
-        val currentElapsedTime = _stopwatchState.value.elapsedTime
-        val isRunning = _stopwatchState.value.isRunning
-        
         stopwatchJob?.cancel()
         
-        // If stopwatch has meaningful time (running or paused), save it to focus time
-        // This ensures we don't lose tracked time when the app is killed or user navigates away
-        if (currentElapsedTime >= 1000L) {
-            saveTimeToStats(currentElapsedTime)
+        // Unbind from service
+        if (isServiceBound) {
+            context.unbindService(serviceConnection)
+            isServiceBound = false
         }
     }
 
@@ -203,7 +220,7 @@ class StopwatchViewModel(
                 val application = (this[APPLICATION_KEY] as ZingApplication)
                 val appStatRepository = application.container.statRepository
                 
-                StopwatchViewModel(appStatRepository)
+                StopwatchViewModel(appStatRepository, application.applicationContext)
             }
         }
     }

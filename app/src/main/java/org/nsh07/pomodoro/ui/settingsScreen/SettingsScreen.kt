@@ -305,6 +305,13 @@ private fun SettingsScreen(
                                         modifier = Modifier.size(SwitchDefaults.IconSize)
                                     )
                                 }
+                                else {
+                                    Icon(
+                                        painterResource(R.drawable.baseline_close_24),
+                                        null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                                    )
+                                }
                             }
                         )
                     },
@@ -331,6 +338,13 @@ private fun SettingsScreen(
                                 ) {
                                     Icon(
                                         painterResource(R.drawable.baseline_check),
+                                        null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                                    )
+                                }
+                                else {
+                                    Icon(
+                                        painterResource(R.drawable.baseline_close_24),
                                         null,
                                         modifier = Modifier.size(SwitchDefaults.IconSize)
                                     )

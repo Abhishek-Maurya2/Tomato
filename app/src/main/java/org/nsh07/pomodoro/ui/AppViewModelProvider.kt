@@ -41,7 +41,8 @@ object AppViewModelProvider {
         }
         initializer {
             StopwatchViewModel(
-                zingApplication().container.statRepository
+                zingApplication().container.statRepository,
+                zingApplication().applicationContext
             )
         }
         initializer {
