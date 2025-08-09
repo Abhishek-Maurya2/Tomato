@@ -125,9 +125,6 @@ fun StatsScreen(
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(
-                0.dp, 0.dp, 0.dp, 90.dp
-            )
         ) {
             item { Spacer(Modifier) }
             item {
@@ -336,7 +333,7 @@ fun StatsScreen(
                         modifier = Modifier.padding(horizontal = 32.dp)
                     )
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(96.dp))
             }
         }
     }

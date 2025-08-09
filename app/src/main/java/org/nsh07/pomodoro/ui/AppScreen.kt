@@ -14,6 +14,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -42,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -91,7 +93,8 @@ fun AppScreen(
 
     Scaffold(
     ) { contentPadding ->
-        NavDisplay(
+        Box(Modifier.fillMaxSize()) {
+            NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
             transitionSpec = {
@@ -171,16 +174,16 @@ fun AppScreen(
                 }
             }
         )
-        // Floating Action Toolbar for navigation
-        Box(
-            modifier = Modifier
-                .fillMaxSize() // Fill the available space
-                .padding(contentPadding) // Respect Scaffold's padding
-                .padding(16.dp), // Additional padding for the toolbar itself
-            contentAlignment = Alignment.BottomCenter // Position at the bottom center
-        ) {
+
+            // Floating Action Toolbar for navigation (overlay)
             HorizontalFloatingToolbar(
                 expanded = true,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(16.dp)
+                    .minimumInteractiveComponentSize()
+                    .zIndex(1f),
                 colors = FloatingToolbarColors(
                     toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                     toolbarContentColor = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -213,8 +216,7 @@ fun AppScreen(
                                     )
                                 ),
                             shape = IconButtonDefaults.mediumRoundShape,
-                        )
-                        {
+                        ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
@@ -225,7 +227,6 @@ fun AppScreen(
                                         contentDescription = item.label,
                                     )
                                 }
-
                             }
                         }
                     }

@@ -3,11 +3,13 @@ package org.nsh07.pomodoro.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
@@ -32,14 +34,49 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+private val AmoledDarkColorScheme = darkColorScheme(
+    primary = Purple80,
+    secondary = PurpleGrey80,
+    tertiary = Pink80,
+    background = Color.Black,
+    surface = Color.Black,
+    surfaceVariant = Color.Black,
+    onBackground = Color.White,
+    onSurface = Color.White,
+)
+
+private fun ColorScheme.toAmoled(): ColorScheme = this.copy(
+    background = Color.Black,
+    surface = Color.Black,
+    surfaceVariant = Color.Black,
+    surfaceDim = Color.Black,
+    surfaceBright = Color.Black,
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerLow = Color.Black,
+    // surfaceContainer = Color.Black,  //default surfacecontainer colour
+    surfaceContainerHigh = Color.Black,
+    surfaceContainerHighest = Color.Black,
+    onBackground = Color.White,
+    onSurface = Color.White,
+    onSurfaceVariant = onSurface // keep good contrast
+)
+
 @Composable
 fun ZingTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    amoled: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
+        amoled -> {
+            // For AMOLED, prefer true black surfaces; blend with dynamic palette if available
+            if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val context = LocalContext.current
+                dynamicDarkColorScheme(context).toAmoled()
+            } else AmoledDarkColorScheme
+        }
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

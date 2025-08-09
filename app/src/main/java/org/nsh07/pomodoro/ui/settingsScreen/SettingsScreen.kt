@@ -98,6 +98,7 @@ fun SettingsScreenRoot(
     // collect theme state from ViewModel
     val isSystemTheme = viewModel.isSystemTheme
     val isDarkTheme = viewModel.isDarkTheme
+    val isAmoled = viewModel.isAmoled
     SettingsScreen(
         focusTimeInputFieldState = focusTimeInputFieldState,
         shortBreakTimeInputFieldState = shortBreakTimeInputFieldState,
@@ -105,8 +106,10 @@ fun SettingsScreenRoot(
         sessionsSliderState = sessionsSliderState,
         isSystemTheme = isSystemTheme,
         isDarkTheme = isDarkTheme,
+        isAmoled = isAmoled,
         onSystemThemeChange = { viewModel.updateSystemTheme(it) },
         onDarkThemeChange = { viewModel.updateDarkTheme(it) },
+        onAmoledThemeChange = { viewModel.updateAmoledTheme(it) },
         modifier = modifier
     )
 }
@@ -120,8 +123,10 @@ private fun SettingsScreen(
     sessionsSliderState: SliderState,
     isSystemTheme: Boolean,
     isDarkTheme: Boolean,
+    isAmoled: Boolean,
     onSystemThemeChange: (Boolean) -> Unit,
     onDarkThemeChange: (Boolean) -> Unit,
+    onAmoledThemeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -352,6 +357,40 @@ private fun SettingsScreen(
                             }
                         )
                     },
+                    modifier = Modifier.clip(middleListItemShape)
+                )
+            }
+            // AMOLED dark theme
+            item {
+                ListItem(
+                    leadingContent = { Icon(
+                        painterResource(R.drawable.dark_mode),
+                        null
+                    ) },
+                    headlineContent = { Text("AMOLED black") },
+                    trailingContent = {
+                        Switch(
+                            checked = isAmoled,
+                            onCheckedChange = onAmoledThemeChange,
+                            enabled = !isSystemTheme,
+                            colors = SwitchDefaults.colors(),
+                            thumbContent = {
+                                if (isAmoled) {
+                                    Icon(
+                                        painterResource(R.drawable.baseline_check),
+                                        null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                                    )
+                                } else {
+                                    Icon(
+                                        painterResource(R.drawable.baseline_close_24),
+                                        null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                                    )
+                                }
+                            }
+                        )
+                    },
                     modifier = Modifier.clip(bottomListItemShape)
                 )
             }
@@ -374,8 +413,10 @@ fun SettingsScreenPreview() {
             sessionsSliderState = rememberSliderState(value = 3f, steps = 3, valueRange = 1f..5f),
             isSystemTheme = true,
             isDarkTheme = false,
+            isAmoled = false,
             onSystemThemeChange = {},
             onDarkThemeChange = {},
+            onAmoledThemeChange = {},
             modifier = Modifier.fillMaxSize()
         )
     }

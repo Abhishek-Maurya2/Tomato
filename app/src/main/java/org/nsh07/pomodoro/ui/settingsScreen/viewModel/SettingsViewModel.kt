@@ -51,6 +51,8 @@ class SettingsViewModel(
         private set
     var isDarkTheme by mutableStateOf(false)
         private set
+    var isAmoled by mutableStateOf(false)
+        private set
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -96,6 +98,7 @@ class SettingsViewModel(
             val mode = preferenceRepository.getIntPreference("theme_mode") ?: 0
             isSystemTheme = (mode == 0)
             isDarkTheme = (mode == 2)
+            isAmoled = (mode == 3)
         }
     }
 
@@ -110,11 +113,14 @@ class SettingsViewModel(
     /** Toggle following system theme */
     fun updateSystemTheme(follow: Boolean) {
         isSystemTheme = follow
-        if (follow) isDarkTheme = false
+        if (follow) {
+            isDarkTheme = false
+            isAmoled = false
+        }
         viewModelScope.launch(Dispatchers.IO) {
             preferenceRepository.saveIntPreference(
                 "theme_mode",
-                if (follow) 0 else if (isDarkTheme) 2 else 1
+                if (follow) 0 else if (isAmoled) 3 else if (isDarkTheme) 2 else 1
             )
         }
     }
@@ -122,10 +128,24 @@ class SettingsViewModel(
     fun updateDarkTheme(dark: Boolean) {
         isDarkTheme = dark
         isSystemTheme = false
+        if (dark) isAmoled = false
         viewModelScope.launch(Dispatchers.IO) {
             preferenceRepository.saveIntPreference(
                 "theme_mode",
                 if (dark) 2 else 1
+            )
+        }
+    }
+
+    /** Toggle AMOLED dark theme (disables system follow and normal dark) */
+    fun updateAmoledTheme(amoled: Boolean) {
+        isAmoled = amoled
+        isSystemTheme = false
+        if (amoled) isDarkTheme = false
+        viewModelScope.launch(Dispatchers.IO) {
+            preferenceRepository.saveIntPreference(
+                "theme_mode",
+                if (amoled) 3 else 1
             )
         }
     }

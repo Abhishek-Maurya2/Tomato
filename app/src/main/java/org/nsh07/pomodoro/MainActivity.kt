@@ -55,9 +55,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val isSystemTheme = settingsViewModel.isSystemTheme
             val isDarkTheme = settingsViewModel.isDarkTheme
+            val isAmoled = settingsViewModel.isAmoled
             val systemDarkTheme = isSystemInDarkTheme()
             
-            val shouldUseDarkTheme = if (isSystemTheme) systemDarkTheme else isDarkTheme
+            val shouldUseDarkTheme = if (isSystemTheme) systemDarkTheme else (isDarkTheme || isAmoled)
             
             // Update status bar appearance when theme changes
             LaunchedEffect(shouldUseDarkTheme) {
@@ -66,7 +67,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
             
-            ZingTheme(darkTheme = shouldUseDarkTheme) {
+            ZingTheme(darkTheme = shouldUseDarkTheme, amoled = isAmoled) {
                 AppScreen(
                     stopwatchViewModel = stopwatchViewModel,
                     timerViewModel = timerViewModel, 
