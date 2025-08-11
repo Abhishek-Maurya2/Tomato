@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,6 +37,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -85,30 +86,31 @@ fun StopwatchScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
+                    // Fixed container size for both states to avoid ButtonGroup shifting
                     modifier = Modifier
-                        .height(350.dp)
-                        .fillMaxWidth(),
+                        .widthIn(max = 450.dp)
+                        .fillMaxWidth(0.9f)
+                        .aspectRatio(1f)
+                        .clipToBounds(),
                     contentAlignment = Alignment.Center
-                ) {
+                )
+                {
                     if (stopwatchState.isRunning) {
                         // Animated LoadingIndicator when running
                         LoadingIndicator(
                             modifier = Modifier
-                                .widthIn(max = 400.dp)
-                                .fillMaxWidth(1.0f)
-                                .aspectRatio(1f),
+                                .fillMaxSize()
+                                .scale(1.3f),
                             color = colorScheme.primary,
                         )
-                    } else {
+                    }
+                    else {
                         // Static Surface when stopped/paused
                         Surface(
-                            modifier = Modifier
-                                .widthIn(max = 300.dp)
-                                .fillMaxWidth(0.9f)
-                                .aspectRatio(1f),
+                            modifier = Modifier.size(300.dp),
                             shape = CircleShape,
                             color = colorScheme.secondaryContainer,
-                            tonalElevation = 2.dp
+                            tonalElevation = 3.dp
                         ) {}
                     }
                     
@@ -121,7 +123,7 @@ fun StopwatchScreen(
                                 text = stopwatchState.hoursMinutesStr,
                                 style = TextStyle(
                                     fontFamily = openRundeClock,
-                                    fontSize = 70.sp,
+                                    fontSize = 80.sp,
                                     lineHeight = 76.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = if (stopwatchState.isRunning) colorScheme.onPrimary else colorScheme.onSecondaryContainer
@@ -142,13 +144,14 @@ fun StopwatchScreen(
                                 maxLines = 1
                             )
                         }
-                    } else {
+                    }
+                    else {
                         // Single-line display for times under an hour
                         Text(
                             text = stopwatchState.timeStr,
                             style = TextStyle(
                                 fontFamily = openRundeClock,
-                                fontSize = 70.sp,
+                                fontSize = 85.sp,
                                 lineHeight = 76.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (stopwatchState.isRunning) colorScheme.onPrimary else colorScheme.onSecondaryContainer
@@ -159,9 +162,8 @@ fun StopwatchScreen(
                     }
                 }
 
-
                 val interactionSources = remember { List(2) { MutableInteractionSource() } }
-               ButtonGroup(
+                ButtonGroup(
                     overflowIndicator = { state ->
                         FilledTonalIconButton(
                             onClick = {
@@ -185,7 +187,7 @@ fun StopwatchScreen(
                             )
                         }
                     },
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(bottom = 120.dp)
                 ) {
                     customItem(
                         {
