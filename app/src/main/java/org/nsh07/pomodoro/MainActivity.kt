@@ -1,7 +1,6 @@
 package org.nsh07.pomodoro
 
 import android.Manifest
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,11 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import org.nsh07.pomodoro.ui.AppScreen
 import org.nsh07.pomodoro.ui.AppViewModelProvider
 import org.nsh07.pomodoro.ui.NavItem
@@ -81,13 +76,13 @@ class MainActivity : ComponentActivity() {
         val screens = listOf(
             NavItem(
                 Screen.Tasks,
-                R.drawable.baseline_check,
-                R.drawable.baseline_check,
+                R.drawable.check_circle_24,
+                R.drawable.check_circle_24_filled,
                 "Tasks"
             ),
             NavItem(
                 Screen.Stopwatch,
-                R.drawable.clocks,
+                R.drawable.browse_gallery_24,
                 R.drawable.clocks,
                 "Stopwatch"
             ),

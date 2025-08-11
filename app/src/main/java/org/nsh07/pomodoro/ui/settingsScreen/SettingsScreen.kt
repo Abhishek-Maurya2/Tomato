@@ -65,7 +65,6 @@ import org.nsh07.pomodoro.ui.AppViewModelProvider
 import org.nsh07.pomodoro.ui.settingsScreen.viewModel.SettingsViewModel
 import org.nsh07.pomodoro.ui.theme.AppFonts.robotoFlexTopBar
 import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.bottomListItemShape
-import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.cardShape
 import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.middleListItemShape
 import org.nsh07.pomodoro.ui.theme.WRShapeDefaults.topListItemShape
 import org.nsh07.pomodoro.ui.theme.ZingTheme
@@ -175,6 +174,7 @@ private fun SettingsScreen(
                             "Focus",
                             style = typography.titleSmallEmphasized
                         )
+                        Spacer(Modifier.height(4.dp))
                         MinuteInputField(
                             state = focusTimeInputFieldState,
                             shape = RoundedCornerShape(
@@ -195,6 +195,7 @@ private fun SettingsScreen(
                             "Short break",
                             style = typography.titleSmallEmphasized
                         )
+                        Spacer(Modifier.height(4.dp))
                         MinuteInputField(
                             state = shortBreakTimeInputFieldState,
                             shape = RoundedCornerShape(4.dp),
@@ -210,6 +211,7 @@ private fun SettingsScreen(
                             "Long break",
                             style = typography.titleSmallEmphasized
                         )
+                        Spacer(Modifier.height(4.dp))
                         MinuteInputField(
                             state = longBreakTimeInputFieldState,
                             shape = RoundedCornerShape(
@@ -364,7 +366,7 @@ private fun SettingsScreen(
             item {
                 ListItem(
                     leadingContent = { Icon(
-                        painterResource(R.drawable.dark_mode),
+                        painterResource(R.drawable.dark_mode_24),
                         null
                     ) },
                     headlineContent = { Text("AMOLED black") },

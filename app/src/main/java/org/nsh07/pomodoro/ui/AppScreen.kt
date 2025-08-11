@@ -23,26 +23,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FloatingToolbarColors
-import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.FloatingToolbarHorizontalFabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -55,7 +56,6 @@ import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import androidx.window.core.layout.WindowSizeClass
 import org.nsh07.pomodoro.MainActivity.Companion.screens
 import org.nsh07.pomodoro.ui.settingsScreen.SettingsScreenRoot
 import org.nsh07.pomodoro.ui.statsScreen.StatsScreenRoot
@@ -83,16 +83,15 @@ fun AppScreen(
     val layoutDirection = LocalLayoutDirection.current
     val haptic = LocalHapticFeedback.current
     val motionScheme = motionScheme
-    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
     LaunchedEffect(uiState.timerMode) {
         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 
     val backStack = rememberNavBackStack<Screen>(Screen.Stopwatch)
+    var openAddTaskSheet: (() -> Unit)? by remember { mutableStateOf(null) }
 
-    Scaffold(
-    ) { contentPadding ->
+    Scaffold { contentPadding ->
         Box(Modifier.fillMaxSize()) {
             NavDisplay(
             backStack = backStack,
@@ -165,6 +164,10 @@ fun AppScreen(
 
                 entry<Screen.Tasks> {
                     TasksScreen(
+                        showInternalFab = false, // We'll provide FAB via the floating toolbar
+                        onProvideBottomSheetController = { opener ->
+                            openAddTaskSheet = opener
+                        },
                         modifier = modifier.padding(
                             start = contentPadding.calculateStartPadding(layoutDirection),
                             end = contentPadding.calculateEndPadding(layoutDirection),
@@ -176,62 +179,134 @@ fun AppScreen(
         )
 
             // Floating Action Toolbar for navigation (overlay)
-            HorizontalFloatingToolbar(
-                expanded = true,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(16.dp)
-                    .minimumInteractiveComponentSize()
-                    .zIndex(1f),
-                colors = FloatingToolbarColors(
-                    toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    toolbarContentColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    fabContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    fabContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                ),
-                content = {
-                    screens.forEach { item ->
-                        val selected = backStack.last() == item.route
-                        FilledIconToggleButton(
-                            checked = selected,
-                            onCheckedChange = { _ ->
-                                if (item.route != Screen.Stopwatch) {
-                                    if (backStack.size < 2) backStack.add(item.route)
-                                    else backStack[1] = item.route
-                                } else {
-                                    if (backStack.size > 1) backStack.removeAt(1)
-                                }
-                            },
-                            colors = IconButtonDefaults.filledIconToggleButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                                checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                            ),
-                            modifier =
-                                Modifier.size(
-                                    IconButtonDefaults.mediumContainerSize(
-                                        IconButtonDefaults.IconButtonWidthOption.Uniform
-                                    )
-                                ),
-                            shape = IconButtonDefaults.mediumRoundShape,
+            val isTasks = backStack.last() == Screen.Tasks
+        if (isTasks) {
+                HorizontalFloatingToolbar(
+            expanded = true,
+                    floatingActionButton = {
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { openAddTaskSheet?.invoke() }
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                            Icon(
+                                painter = painterResource(id = org.nsh07.pomodoro.R.drawable.baseline_add_24),
+                                contentDescription = "Add task"
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(16.dp)
+                        .minimumInteractiveComponentSize()
+                        .shadow(elevation = 92.dp, shape = MaterialTheme.shapes.extraLarge)
+                        .zIndex(1f),
+                    colors = FloatingToolbarColors(
+                        toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        toolbarContentColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        fabContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        fabContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    ),
+                    floatingActionButtonPosition = FloatingToolbarHorizontalFabPosition.End,
+                    content = {
+                        screens.forEach { item ->
+                            val selected = backStack.last() == item.route
+                            FilledIconToggleButton(
+                                checked = selected,
+                                onCheckedChange = { _ ->
+                                    if (item.route != Screen.Stopwatch) {
+                                        if (backStack.size < 2) backStack.add(item.route)
+                                        else backStack[1] = item.route
+                                    } else {
+                                        if (backStack.size > 1) backStack.removeAt(1)
+                                    }
+                                },
+                                colors = IconButtonDefaults.filledIconToggleButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                ),
+                                modifier = Modifier.size(46.dp),
                             ) {
-                                Crossfade(targetState = selected, label = "icon_selection_fade") { isSelected ->
-                                    Icon(
-                                        painter = painterResource(id = if (isSelected) item.selectedIcon else item.unselectedIcon),
-                                        contentDescription = item.label,
-                                    )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Crossfade(targetState = selected, label = "icon_selection_fade") { isSelected ->
+                                        Icon(
+                                            painter = painterResource(id = if (isSelected) item.selectedIcon else item.unselectedIcon),
+                                            contentDescription = item.label,
+                                        )
+                                        if (isSelected) {
+                                            LaunchedEffect(Unit) {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            )
+                )
+            }
+        else {
+                HorizontalFloatingToolbar(
+                    expanded = false,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(26.dp)
+                        .minimumInteractiveComponentSize()
+                        .shadow(elevation = 32.dp, shape = MaterialTheme.shapes.extraLarge)
+                        .zIndex(1f),
+                    colors = FloatingToolbarColors(
+                        toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        toolbarContentColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        fabContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        fabContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    ),
+                    content = {
+                        screens.forEach { item ->
+                            val selected = backStack.last() == item.route
+                            FilledIconToggleButton(
+                                checked = selected,
+                                onCheckedChange = { _ ->
+                                    if (item.route != Screen.Stopwatch) {
+                                        if (backStack.size < 2) backStack.add(item.route)
+                                        else backStack[1] = item.route
+                                    } else {
+                                        if (backStack.size > 1) backStack.removeAt(1)
+                                    }
+                                },
+                                colors = IconButtonDefaults.filledIconToggleButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                    checkedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    checkedContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                ),
+                                modifier = Modifier.size(46.dp),
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Crossfade(targetState = selected, label = "icon_selection_fade") { isSelected ->
+                                        Icon(
+                                            painter = painterResource(id = if (isSelected) item.selectedIcon else item.unselectedIcon),
+                                            contentDescription = item.label,
+                                        )
+                                        if (isSelected) {
+                                            LaunchedEffect(Unit) {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+            }
         }
     }
 }

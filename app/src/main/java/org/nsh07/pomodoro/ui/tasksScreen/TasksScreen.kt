@@ -50,6 +50,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,7 +83,9 @@ import org.nsh07.pomodoro.ui.theme.ZingTheme
 @Composable
 fun TasksScreen(
     modifier: Modifier = Modifier,
-    viewModel: TasksViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: TasksViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    showInternalFab: Boolean = true,
+    onProvideBottomSheetController: ((open: () -> Unit) -> Unit)? = null,
 ) {
     val incompleteTasks by viewModel.incompleteTasks.collectAsState()
     val completedTasks by viewModel.completedTasks.collectAsState()
@@ -114,7 +117,9 @@ fun TasksScreen(
             newTaskTitle = ""
         },
         isEditing = editingTask != null,
-        modifier = modifier
+    modifier = modifier,
+    showInternalFab = showInternalFab,
+    onProvideBottomSheetController = onProvideBottomSheetController
     )
 }
 
@@ -133,7 +138,9 @@ private fun TasksScreenContent(
     onStartEditing: (Task) -> Unit,
     onStopEditing: () -> Unit,
     isEditing: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showInternalFab: Boolean = true,
+    onProvideBottomSheetController: ((open: () -> Unit) -> Unit)? = null,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val sheetState = rememberModalBottomSheetState()
@@ -142,6 +149,11 @@ private fun TasksScreenContent(
 
     if (isEditing) {
         showBottomSheet = true
+    }
+
+    // Provide the opener back up to AppScreen so a toolbar FAB can trigger it
+    LaunchedEffect(Unit) {
+        onProvideBottomSheetController?.invoke { showBottomSheet = true }
     }
 
 
@@ -166,15 +178,17 @@ private fun TasksScreenContent(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showBottomSheet = true },
-                containerColor = colorScheme.primary,
-                modifier = Modifier.padding(bottom = 80.dp),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
-                    contentDescription = "Add task"
-                )
+            if (showInternalFab) {
+                FloatingActionButton(
+                    onClick = { showBottomSheet = true },
+                    containerColor = colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 80.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_add_24),
+                        contentDescription = "Add task"
+                    )
+                }
             }
         }
     ) { paddingValues ->
