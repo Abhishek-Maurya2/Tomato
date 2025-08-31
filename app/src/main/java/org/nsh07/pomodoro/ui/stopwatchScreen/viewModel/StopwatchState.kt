@@ -13,5 +13,6 @@ data class StopwatchState(
     val hoursMinutesStr: String = "",
     val secondsStr: String = "",
     val isOverAnHour: Boolean = false,
-    val isRunning: Boolean = false
+    val isRunning: Boolean = false,
+    val isAmbient: Boolean = false
 )

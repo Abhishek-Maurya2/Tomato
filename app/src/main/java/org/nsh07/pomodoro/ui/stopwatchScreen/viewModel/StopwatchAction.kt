@@ -11,4 +11,6 @@ sealed interface StopwatchAction {
     data object ToggleStopwatch : StopwatchAction
     data object ResetStopwatch : StopwatchAction
     data object SaveAndResetStopwatch : StopwatchAction
+    data object EnterAmbient : StopwatchAction
+    data object ExitAmbient : StopwatchAction
 }

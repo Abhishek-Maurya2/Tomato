@@ -5,13 +5,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package org.nsh07.pomodoro.ui.stopwatchScreen
 
+import androidx.compose.foundation.background
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,10 +27,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -33,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +55,12 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.WindowInsetsCompat
 import org.nsh07.pomodoro.R
 import org.nsh07.pomodoro.ui.theme.AppFonts.openRundeClock
 import org.nsh07.pomodoro.ui.theme.AppFonts.robotoFlexTopBar
@@ -53,9 +68,76 @@ import org.nsh07.pomodoro.ui.theme.ZingTheme
 import org.nsh07.pomodoro.ui.stopwatchScreen.viewModel.StopwatchAction
 import org.nsh07.pomodoro.ui.stopwatchScreen.viewModel.StopwatchState
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@ExperimentalMaterial3ExpressiveApi
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopwatchScreen(
+    stopwatchState: StopwatchState,
+    onAction: (StopwatchAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+
+    // Adjust system UI (fullscreen) and brightness when ambient changes (skip during preview)
+    LaunchedEffect(stopwatchState.isAmbient) {
+        if (!view.isInEditMode) {
+            val activity = view.context as? android.app.Activity
+            val window = activity?.window
+            window?.let { w ->
+                val controller = WindowCompat.getInsetsController(w, w.decorView)
+                if (stopwatchState.isAmbient) {
+                    controller.hide(
+                        WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
+                    )
+                    controller.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    val lp = w.attributes
+                    lp.screenBrightness = 0.02f
+                    w.attributes = lp
+                } else {
+                    controller.show(
+                        WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
+                    )
+                    val lp = w.attributes
+                    lp.screenBrightness = android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                    w.attributes = lp
+                }
+            }
+        }
+    }
+
+    Crossfade(targetState = stopwatchState.isAmbient, label = "ambientMode") { isAmbient ->
+        if (isAmbient) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .clickable { onAction(StopwatchAction.ExitAmbient) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stopwatchState.timeStr,
+                    style = TextStyle(
+                        fontFamily = openRundeClock,
+                        fontSize = if (stopwatchState.isOverAnHour) 68.sp else 96.sp,
+                        lineHeight = if (stopwatchState.isOverAnHour) 68.sp else 96.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White.copy(alpha = 0.9f)
+                    ),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
+                )
+            }
+        } else {
+            StopwatchNormalContent(stopwatchState, onAction, modifier)
+        }
+    }
+}
+
+@ExperimentalMaterial3ExpressiveApi
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StopwatchNormalContent(
     stopwatchState: StopwatchState,
     onAction: (StopwatchAction) -> Unit,
     modifier: Modifier = Modifier
@@ -86,26 +168,21 @@ fun StopwatchScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
-                    // Fixed container size for both states to avoid ButtonGroup shifting
                     modifier = Modifier
                         .widthIn(max = 450.dp)
                         .fillMaxWidth(0.9f)
                         .aspectRatio(1f)
                         .clipToBounds(),
                     contentAlignment = Alignment.Center
-                )
-                {
+                ) {
                     if (stopwatchState.isRunning) {
-                        // Animated LoadingIndicator when running
                         LoadingIndicator(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .scale(1.3f),
                             color = colorScheme.primary,
                         )
-                    }
-                    else {
-                        // Static Surface when stopped/paused
+                    } else {
                         Surface(
                             modifier = Modifier.size(300.dp),
                             shape = CircleShape,
@@ -113,12 +190,9 @@ fun StopwatchScreen(
                             tonalElevation = 3.dp
                         ) {}
                     }
-                    
+
                     if (stopwatchState.isOverAnHour) {
-                        // Two-line display for times over an hour
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = stopwatchState.hoursMinutesStr,
                                 style = TextStyle(
@@ -144,9 +218,7 @@ fun StopwatchScreen(
                                 maxLines = 1
                             )
                         }
-                    }
-                    else {
-                        // Single-line display for times under an hour
+                    } else {
                         Text(
                             text = stopwatchState.timeStr,
                             style = TextStyle(
@@ -162,7 +234,7 @@ fun StopwatchScreen(
                     }
                 }
 
-                val interactionSources = remember { List(2) { MutableInteractionSource() } }
+                val interactionSources = remember { List(3) { MutableInteractionSource() } }
                 ButtonGroup(
                     overflowIndicator = { state ->
                         FilledTonalIconButton(
@@ -189,6 +261,7 @@ fun StopwatchScreen(
                     },
                     modifier = Modifier.padding(bottom = 120.dp)
                 ) {
+                    // Play / Pause
                     customItem(
                         {
                             FilledIconToggleButton(
@@ -230,7 +303,7 @@ fun StopwatchScreen(
                                     } else {
                                         Icon(
                                             painterResource(R.drawable.play),
-                                            contentDescription = "Play"
+                                            contentDescription = "Start"
                                         )
                                     }
                                 },
@@ -243,12 +316,13 @@ fun StopwatchScreen(
                         }
                     )
 
+                    // Reset
                     customItem(
                         {
                             FilledTonalIconButton(
                                 onClick = { onAction(StopwatchAction.ResetStopwatch) },
                                 colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                    containerColor = colorScheme.tertiaryContainer
+                                    containerColor = colorScheme.secondaryContainer
                                 ),
                                 shapes = IconButtonDefaults.shapes(),
                                 interactionSource = interactionSources[1],
@@ -268,12 +342,50 @@ fun StopwatchScreen(
                                 leadingIcon = {
                                     Icon(
                                         painterResource(R.drawable.restart),
-                                        "Restart"
+                                        contentDescription = "Restart"
                                     )
                                 },
                                 text = { Text("Restart") },
                                 onClick = {
                                     onAction(StopwatchAction.ResetStopwatch)
+                                    state.dismiss()
+                                }
+                            )
+                        }
+                    )
+
+                    // Ambient
+                    customItem(
+                        {
+                            FilledTonalIconButton(
+                                onClick = { onAction(StopwatchAction.EnterAmbient) },
+                                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                    containerColor = colorScheme.secondaryContainer
+                                ),
+                                shapes = IconButtonDefaults.shapes(),
+                                interactionSource = interactionSources[2],
+                                modifier = Modifier
+                                    .size(64.dp, 96.dp)
+                                    .animateWidth(interactionSources[2])
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.info),
+                                    contentDescription = "Ambient Mode",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        },
+                        { state ->
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        painterResource(R.drawable.info),
+                                        contentDescription = "Ambient"
+                                    )
+                                },
+                                text = { Text("Ambient Mode") },
+                                onClick = {
+                                    onAction(StopwatchAction.EnterAmbient)
                                     state.dismiss()
                                 }
                             )

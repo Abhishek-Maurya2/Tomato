@@ -77,6 +77,8 @@ class StopwatchViewModel(
             StopwatchAction.ToggleStopwatch -> toggleStopwatch()
             StopwatchAction.ResetStopwatch -> resetStopwatch()
             StopwatchAction.SaveAndResetStopwatch -> saveAndResetStopwatch()
+            StopwatchAction.EnterAmbient -> enterAmbientMode()
+            StopwatchAction.ExitAmbient -> exitAmbientMode()
         }
     }
 
@@ -201,6 +203,14 @@ class StopwatchViewModel(
             elapsedTime > 86400000L -> 86400000L // Cap at 24 hours
             else -> elapsedTime
         }
+    }
+
+    private fun enterAmbientMode() {
+        _stopwatchState.update { it.copy(isAmbient = true) }
+    }
+
+    private fun exitAmbientMode() {
+        _stopwatchState.update { it.copy(isAmbient = false) }
     }
 
     override fun onCleared() {
